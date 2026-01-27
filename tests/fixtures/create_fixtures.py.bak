@@ -1,0 +1,61 @@
+"""
+Generate test audio fixtures for translation tests
+Run this script to create test audio files
+"""
+from gtts import gTTS
+import os
+
+# Get the directory where this script is located
+FIXTURES_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def create_fixture(text, lang, filename):
+    """Create a test audio fixture"""
+    filepath = os.path.join(FIXTURES_DIR, filename)
+    print(f"Creating: {filename}")
+    print(f"  Text: '{text}'")
+    print(f"  Lang: {lang}")
+    
+    tts = gTTS(text, lang=lang)
+    tts.save(filepath)
+    
+    file_size = os.path.getsize(filepath)
+    print(f"  ✓ Saved: {file_size} bytes\n")
+
+def main():
+    """Generate all test fixtures"""
+    print("=== Generating Test Fixtures ===\n")
+    
+    # English test audio
+    create_fixture(
+        text="Hello, my name is Mira. I would like to order a pizza with mushrooms and cheese. Thank you very much!",
+        lang='en',
+        filename='test_audio_en.mp3'
+    )
+    
+    # Italian test audio
+    create_fixture(
+        text="Buongiorno, mi chiamo Emanuel. Vorrei prenotare un tavolo per due persone stasera alle otto. Grazie mille!",
+        lang='it',
+        filename='test_audio_it.mp3'
+    )
+    
+    # Short audio (for edge case testing)
+    create_fixture(
+        text="Hi",
+        lang='en',
+        filename='test_audio_short.mp3'
+    )
+    
+    # Long audio (for edge case testing)
+    long_text = "This is a very long sentence. " * 20
+    create_fixture(
+        text=long_text,
+        lang='en',
+        filename='test_audio_long.mp3'
+    )
+    
+    print("=== Fixtures Created Successfully ===")
+    print(f"Location: {FIXTURES_DIR}")
+
+if __name__ == '__main__':
+    main()

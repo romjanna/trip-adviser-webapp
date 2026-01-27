@@ -5,6 +5,10 @@ import logging
 import sys
 import os
 
+# Load environment variables from .env file (for local development)
+from dotenv import load_dotenv
+load_dotenv()
+
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -19,22 +23,10 @@ from src.models import TranslationConfig
 try:
     config = Config.from_env()
 except ValueError as e:
-    # For local development without .env
+    # For local development without proper config
     print(f"Config error: {e}")
-    print("Using default development config")
-    from src.config import Environment
-    config = type('Config', (), {
-        'ENV': Environment.DEVELOPMENT,
-        'DEBUG': True,
-        'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY', ''),
-        'HOST': '0.0.0.0',
-        'PORT': 8080,
-        'MAX_FILE_SIZE_MB': 25,
-        'MIN_CONFIDENCE_SCORE': 0.7,
-        'MAX_RETRIES': 3,
-        'LOG_LEVEL': 'INFO',
-        'CORS_ORIGINS': ['*']
-    })()
+    print("Please check your .env file")
+    sys.exit(1)
 
 # Configure logging
 logging.basicConfig(
@@ -55,7 +47,7 @@ def home():
         'status': 'success',
         'message': 'Translation API is running',
         'version': '1.0.0',
-        'environment': config.ENV.value if hasattr(config.ENV, 'value') else 'development'
+        'environment': config.ENV.value
     })
 
 
@@ -65,7 +57,7 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "service": "translation-api",
-        "environment": config.ENV.value if hasattr(config.ENV, 'value') else 'development'
+        "environment": config.ENV.value
     }), 200
 
 
@@ -83,14 +75,6 @@ def translate():
             )
         
         audio_file = request.files['audio']
-        
-        # Check API key
-        if not config.OPENAI_API_KEY:
-            logger.error("OPENAI_API_KEY not configured")
-            return make_response(
-                jsonify({"error": "Translation service not configured"}),
-                500
-            )
         
         # Initialize service
         translation_config = TranslationConfig(
@@ -157,6 +141,7 @@ def internal_error(error):
 
 if __name__ == '__main__':
     # For local development only
+    logger.info(f"Starting Translation API in {config.ENV.value} mode")
     app.run(
         host=config.HOST,
         port=config.PORT,

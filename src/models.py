@@ -23,17 +23,18 @@ class LanguageCode(Enum):
         return self.value[1]
     
     @classmethod
-    def from_code(cls, code: str) -> Optional['LanguageCode']:
-        """Get LanguageCode from ISO code"""
-        for lang in cls:
-            if lang.code == code.lower():
-                return lang
-        return None
-    
-    @classmethod
     def get_supported_codes(cls) -> set:
         """Get set of supported language codes"""
         return {lang.code for lang in cls}
+
+    @classmethod                                                                                     
+    def from_name_or_code(cls, value: str) -> Optional['LanguageCode']:                              
+        """Get LanguageCode from either ISO code or full name"""                                     
+        value_lower = value.lower()                                                                  
+        for lang in cls:                                                                             
+            if lang.code == value_lower or lang.value[1].lower() == value_lower:                     
+              return lang                                                                          
+        return None 
 
 
 @dataclass

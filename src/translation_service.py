@@ -14,8 +14,7 @@ from .models import (
 )
 from .validators import TranslationValidator, AudioFileValidator
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__)                                                                                              
 
 class TranslationService:
     """Core translation service with enterprise features"""
@@ -128,10 +127,15 @@ RULES:
             transcription = self._transcribe_with_retry(audio_data)
             
             original_text = transcription.text.strip()
-            detected_language = transcription.language
-            
-            logger.info(f"Detected: {detected_language}, Length: {len(original_text)}")
-            
+            detected_language = transcription.language                                                       
+            lang_enum = LanguageCode.from_name_or_code(detected_language)                                    
+            if lang_enum:                                                                                    
+                detected_language = lang_enum.code  # Normalize to ISO code
+            else:
+                logger.warning(f"Unknown language: {detected_language}, using English")
+                detected_language = LanguageCode.ENGLISH.code
+                
+            logger.info(f"Detected language for transcription: {detected_language}, Length: {len(original_text)}")
             # Step 3: Validate transcription
             is_valid, error_msg = self.validator.validate_text_length(original_text)
             if not is_valid:
