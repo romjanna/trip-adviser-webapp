@@ -30,6 +30,7 @@ wheels/
 # IDEs
 .vscode/
 .idea/
+.gitignore.save
 *.swp
 *.swo
 *~
