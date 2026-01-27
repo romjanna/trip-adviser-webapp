@@ -43,5 +43,10 @@ Thumbs.db
 .coverage
 htmlcov/
 
+# Test files
+test_audio*.mp3
+translated*.mp3
+response_headers.txt
+
 # Cloud Run
 .gcloudignore
