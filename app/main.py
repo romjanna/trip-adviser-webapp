@@ -37,7 +37,12 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, origins=config.CORS_ORIGINS)
+CORS(app, origins=config.CORS_ORIGINS, expose_headers=[
+    'X-Original-Text',
+    'X-Translated-Text',
+    'X-Detected-Language',
+    'X-Target-Language'
+])
 
 
 @app.route('/')
